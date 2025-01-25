@@ -1,0 +1,50 @@
+﻿@page "/artikel"
+@using Lagerverwaltung.Data
+@using Lagerverwaltung.Models
+@using Microsoft.EntityFrameworkCore
+@inject LagerDbContext DbContext
+@rendermode InteractiveServer
+
+<h3>Artikelübersicht</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ArtikelId</th>
+            <th>Artikelname</th>
+            <th>Beschreibung</th>
+            <th>Menge</th>
+            <th>Preis pro Einheit</th>
+            <th>LagerplatzId</th>  <!-- Neue Spalte für LagerplatzId -->
+            <th>Aktionen</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var artikel in ArtikelListe)
+        {
+            <tr>
+                <td>@artikel.ArtikelId</td>
+                <td>@artikel.Artikelname</td>
+                <td>@artikel.Beschreibung</td>
+                <td>@artikel.Menge</td>
+                <td>@artikel.PreisProEinheit</td>
+                <td>@artikel.LagerplatzId</td> <!-- LagerplatzId anzeigen -->
+                <td>
+                    <a href="/artikel-bearbeiten/@artikel.ArtikelId">Bearbeiten</a>
+                </td>
+                <td>
+                    <a href="/artikel-löschen/@artikel.ArtikelId">Löschen</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<Artikel> ArtikelListe = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ArtikelListe = await DbContext.Artikel.ToListAsync();
+    }
+}

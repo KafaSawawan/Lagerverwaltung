@@ -1,0 +1,58 @@
+﻿@page "/login"
+@inject NavigationManager Navigation
+@using Lagerverwaltung.Services
+@inject BenutzerService BenutzerService
+@rendermode InteractiveServer
+
+<h3>Login</h3>
+
+@if (Fehler != null)
+{
+    <p style="color:red">@Fehler</p>
+}
+
+<EditForm Model="LoginDaten" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div>
+        <label>Benutzername:</label>
+        <InputText @bind-Value="LoginDaten.Name" />
+    </div>
+    <div>
+        <label>Passwort:</label>
+        <InputText @bind-Value="LoginDaten.Passwort" type="password" />
+    </div>
+    <button type="submit">Login</button>
+</EditForm>
+
+@code {
+    private class LoginModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Passwort { get; set; } = string.Empty;
+    }
+
+    private LoginModel LoginDaten = new();
+    private string? Fehler;
+
+    private async Task HandleLogin()
+    {
+        var benutzer = BenutzerService.Login(LoginDaten.Name, LoginDaten.Passwort);
+        if (benutzer != null)
+        {
+            // Benutzer ist eingeloggt, Navigation entsprechend der Rolle
+            if (benutzer.Rolle == "Admin")
+            {
+                Navigation.NavigateTo("/admin-dashboard");
+            }
+            else
+            {
+                Navigation.NavigateTo("/artikel");
+            }
+        }
+        else
+        {
+            Fehler = "Ungültiger Benutzername oder Passwort.";
+        }
+    }
+}

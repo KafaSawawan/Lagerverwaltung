@@ -1,0 +1,34 @@
+﻿@page "/artikel-löschen/{ArtikelId:int}"
+@using Lagerverwaltung.Data
+@using Lagerverwaltung.Models
+@inject LagerDbContext DbContext
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<h3>Artikel löschen</h3>
+
+<p>Möchten Sie den Artikel wirklich löschen?</p>
+
+<button @onclick="Löschen">Ja, löschen</button>
+<button @onclick="Zurück">Nein, zurück</button>
+
+@code {
+    [Parameter]
+    public int ArtikelId { get; set; }
+
+    private async Task Löschen()
+    {
+        var artikel = await DbContext.Artikel.FindAsync(ArtikelId);
+        if (artikel != null)
+        {
+            DbContext.Artikel.Remove(artikel);
+            await DbContext.SaveChangesAsync();
+            Navigation.NavigateTo("/artikel");
+        }
+    }
+
+    private void Zurück()
+    {
+        Navigation.NavigateTo("/artikel");
+    }
+}

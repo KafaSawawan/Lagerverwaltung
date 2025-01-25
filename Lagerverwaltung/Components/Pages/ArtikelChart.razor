@@ -1,0 +1,35 @@
+﻿@page "/artikelChart"
+@using Microsoft.EntityFrameworkCore
+@using Lagerverwaltung.Models
+@using Lagerverwaltung.Data
+@inject LagerDbContext DbContext
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<h1>Artikelstatistik</h1>
+<div style="width: 500px; height: 500px; margin: auto;">
+    <canvas id="artikelChart"></canvas>
+</div>
+
+@code {
+    private List<string> artikelNamen = new();
+    private List<int> artikelMengen = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Abrufen der 5 häufigsten Artikel (sortiert nach Menge)
+            var topArtikel = await DbContext.Artikel
+                .OrderByDescending(a => a.Menge)
+                .Take(5)
+                .ToListAsync();
+
+            artikelNamen = topArtikel.Select(a => a.Artikelname).ToList();
+            artikelMengen = topArtikel.Select(a => a.Menge).ToList();
+
+            // JavaScript aufrufen, um das Diagramm zu rendern
+            await JSRuntime.InvokeVoidAsync("createTopArticlesChart", artikelNamen, artikelMengen);
+        }
+    }
+}

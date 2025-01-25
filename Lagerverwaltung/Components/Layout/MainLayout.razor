@@ -1,0 +1,38 @@
+﻿@inherits LayoutComponentBase
+@using Lagerverwaltung.Models
+@using Lagerverwaltung.Services
+@inject BenutzerService BenutzerService
+@inject NavigationManager Navigation
+
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+
+@code {
+    private Benutzer? AktuellerBenutzer;
+
+    protected override void OnInitialized()
+    {
+        // Hier könnte eine Sitzung oder ein Token geladen werden
+    }
+
+    private void Logout()
+    {
+        AktuellerBenutzer = null;
+        Navigation.NavigateTo("/login");
+    }
+}

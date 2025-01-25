@@ -1,0 +1,67 @@
+﻿@page "/artikel-hinzufügen"
+@using Lagerverwaltung.Data
+@using Lagerverwaltung.Models
+@using Microsoft.EntityFrameworkCore
+@inject LagerDbContext DbContext
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<h3>Neuen Artikel hinzufügen</h3>
+
+<EditForm Model="NeuerArtikel" OnValidSubmit="Hinzufügen">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Artikelname:</label>
+        <InputText @bind-Value="NeuerArtikel.Artikelname" />
+    </div>
+
+    <div>
+        <label>Beschreibung:</label>
+        <InputText @bind-Value="NeuerArtikel.Beschreibung" />
+    </div>
+
+    <div>
+        <label>Menge:</label>
+        <InputNumber @bind-Value="NeuerArtikel.Menge" />
+    </div>
+
+    <div>
+        <label>Preis pro Einheit:</label>
+        <InputNumber @bind-Value="NeuerArtikel.PreisProEinheit" />
+    </div>
+
+    <div>
+        <label>Lagerplatz:</label>
+        <InputSelect @bind-Value="NeuerArtikel.LagerplatzId">
+            <option value="">Bitte wählen</option>
+            @foreach (var lagerplatz in Lagerplätze)
+            {
+                <option value="@lagerplatz.LagerplatzId">@lagerplatz.Name</option>
+            }
+        </InputSelect>
+    </div>
+
+    <button type="submit">Hinzufügen</button>
+</EditForm>
+
+@code {
+    private Artikel NeuerArtikel = new();
+    private List<Lagerplatz> Lagerplätze = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Lade alle Lagerplätze aus der Datenbank
+        Lagerplätze = await DbContext.Lagerplatz.ToListAsync();
+    }
+
+    private async Task Hinzufügen()
+    {
+        // Füge den neuen Artikel in die Datenbank ein
+        DbContext.Artikel.Add(NeuerArtikel);
+        await DbContext.SaveChangesAsync();
+        NeuerArtikel = new Artikel(); // Setze das Formular zurück
+        Navigation.NavigateTo("/artikel"); // Navigiere zur Artikelübersicht
+    }
+}

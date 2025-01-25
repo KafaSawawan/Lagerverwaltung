@@ -1,0 +1,38 @@
+﻿@page "/lagerplätze"
+@using Lagerverwaltung.Data
+@using Lagerverwaltung.Models
+@using Microsoft.EntityFrameworkCore
+@inject LagerDbContext DbContext
+@rendermode InteractiveServer
+
+
+<h3>Lagerplätze</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Lagerplatz-ID</th>
+            <th>Name</th>
+            <th>Standort</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var lagerplatz in Lagerplätze)
+        {
+            <tr>
+                <td>@lagerplatz.LagerplatzId</td>
+                <td>@lagerplatz.Name</td>
+                <td>@lagerplatz.Standort</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<Lagerplatz> Lagerplätze = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Lagerplätze = await DbContext.Lagerplatz.ToListAsync();
+    }
+}

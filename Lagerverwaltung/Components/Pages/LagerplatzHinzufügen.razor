@@ -1,0 +1,35 @@
+﻿@page "/lagerplatz-hinzufügen"
+@using Lagerverwaltung.Data
+@using Lagerverwaltung.Models
+@inject LagerDbContext DbContext
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+
+<h3>Neuen Lagerplatz hinzufügen</h3>
+
+<EditForm Model="NeuerLagerplatz" OnValidSubmit="Hinzufügen">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div>
+        <label>Name:</label>
+        <InputText @bind-Value="NeuerLagerplatz.Name" />
+    </div>
+    <div>
+        <label>Standort:</label>
+        <InputText @bind-Value="NeuerLagerplatz.Standort" />
+    </div>
+    <button type="submit">Hinzufügen</button>
+</EditForm>
+
+@code {
+    private Lagerplatz NeuerLagerplatz = new();
+
+    private async Task Hinzufügen()
+    {
+        DbContext.Lagerplatz.Add(NeuerLagerplatz);
+        await DbContext.SaveChangesAsync();
+        NeuerLagerplatz = new Lagerplatz(); 
+        Navigation.NavigateTo("/lagerplätze");
+
+    }
+}
