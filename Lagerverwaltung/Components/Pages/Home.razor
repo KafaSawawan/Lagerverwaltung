@@ -1,7 +1,13 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+@inject NavigationManager NavigationManager
 
-<h1>Hello zu Kafas Lagerverwaltung Programm</h1>
+<h3>Willkommen in der Anwendung!</h3>
 
-Welcome
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        // Weiterleitung zur gewünschten Seite
+        NavigationManager.NavigateTo("/artikel"); // Die Seite, zu der weitergeleitet wird
+    }
+}

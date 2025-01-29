@@ -4,51 +4,143 @@
 @using Microsoft.EntityFrameworkCore
 @inject LagerDbContext DbContext
 @rendermode InteractiveServer
+@inject NavigationManager Navigation
+
 
 <h3>Artikelübersicht</h3>
+
+<!-- 🔍 Such- und Filterfelder -->
+<div class="mb-3">
+    <input type="text" @bind="SearchTerm" placeholder="🔍 Suche nach Artikelname oder Beschreibung..." class="form-control" />
+    <select @bind="FilterMenge" class="form-select mt-2">
+        <option value="0">📌 Alle Artikel</option>
+        <option value="1">⚠️ Nur Artikel mit Menge ≤ 3</option>
+        <option value="2">✅ Nur Artikel mit Menge > 3</option>
+    </select>
+    <!-- Filter nach Lagerplatz -->
+    <select @bind="FilterLagerplatz" class="form-select mt-2">
+        <option value="0">📍 Alle Lagerplätze</option>
+        @foreach (var lagerplatz in Lagerplaetze)
+        {
+            <option value="@lagerplatz.LagerplatzId">@lagerplatz.Name</option>
+        }
+    </select>
+</div>
+
+<div class="d-flex justify-content-start mb-3">
+    <button @onclick="Hinzufuegen">
+       ➕ 
+    </button>
+</div>
 
 <table class="table">
     <thead>
         <tr>
-            <th>ArtikelId</th>
-            <th>Artikelname</th>
+            <th><button class="btn btn-link p-0" @onclick="() => SortiereNach(nameof(Artikel.ArtikelId))">ArtikelNummer 🔽</button></th>
+            <th><button class="btn btn-link p-0" @onclick="() => SortiereNach(nameof(Artikel.Artikelname))">Artikelname 🔽</button></th>
             <th>Beschreibung</th>
-            <th>Menge</th>
-            <th>Preis pro Einheit</th>
-@*             <th>LagerplatzId</th>  <!-- Neue Spalte für LagerplatzId -->
- *@            <th>LagerplatzName</th>
+            <th><button class="btn btn-link p-0" @onclick="() => SortiereNach(nameof(Artikel.Menge))">Menge 🔽</button></th>
+            <th><button class="btn btn-link p-0" @onclick="() => SortiereNach(nameof(Artikel.PreisProEinheit))">Preis pro Einheit 🔽</button></th>
+            <th>Gesamtwert</th>
+            <th>LagerplatzName</th>
             <th>Aktionen</th>
+
         </tr>
     </thead>
+
     <tbody>
-        @foreach (var artikel in ArtikelListe)
+        @foreach (var artikel in GefilterteArtikel)
         {
-            <tr>
+            <tr class="@(artikel.Menge <= 3 ? "table-danger" : "")">
                 <td>@artikel.ArtikelId</td>
                 <td>@artikel.Artikelname</td>
                 <td>@artikel.Beschreibung</td>
                 <td>@artikel.Menge</td>
                 <td>@artikel.PreisProEinheit</td>
-@*                 <td>@artikel.LagerplatzId</td> <!-- LagerplatzId anzeigen -->
- *@                <td>@artikel.Lagerplatz.Name</td> <!-- Lagerplatz Name anzeigen -->
+                <td>@(artikel.Menge * artikel.PreisProEinheit)</td>
+                <td>@artikel.Lagerplatz.Name</td>
                 <td>
-                    <a href="/artikel-bearbeiten/@artikel.ArtikelId">Bearbeiten</a>
-                    <a href="/artikel-löschen/@artikel.ArtikelId">Löschen</a>
+                    <button class="btn btn-warning" @onclick="() => Bearbeiten(artikel.ArtikelId)">Bearbeiten</button>
+                    <button class="btn btn-danger" @onclick="() => Löschen(artikel.ArtikelId)">Löschen</button>
                 </td>
-              
             </tr>
         }
     </tbody>
+
 </table>
 
 @code {
     private List<Artikel> ArtikelListe = new();
+    private List<Lagerplatz> Lagerplaetze = new();
+    private string SearchTerm = "";
+    private int FilterMenge = 0; // 0 = Alle, 1 = ≤ 3, 2 = > 3
+    private int FilterLagerplatz = 0; // 0 = Alle Lagerplätze
+    private string SortierSpalte = nameof(Artikel.ArtikelId);
+    private bool Aufsteigend = true;
 
     protected override async Task OnInitializedAsync()
     {
         ArtikelListe = await DbContext.Artikel
-            .Include(a => a.Lagerplatz) // Lade den Lagerplatz mit
+            .Include(a => a.Lagerplatz)
             .ToListAsync();
+
+        Lagerplaetze = await DbContext.Lagerplatz.ToListAsync(); // Lagerplätze laden
     }
 
+    private IEnumerable<Artikel> GefilterteArtikel
+    {
+        get
+        {
+            var result = ArtikelListe
+                .Where(a => string.IsNullOrWhiteSpace(SearchTerm) ||
+                            a.Artikelname.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) ||
+                            a.Beschreibung.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase))
+                .Where(a => FilterMenge == 0 || (FilterMenge == 1 && a.Menge <= 3) || (FilterMenge == 2 && a.Menge > 3));
+
+            // Filter nach Lagerplatz
+            if (FilterLagerplatz != 0)
+            {
+                result = result.Where(a => a.Lagerplatz.LagerplatzId == FilterLagerplatz);
+            }
+
+            // 💡 Korrekte Sortierung basierend auf der Spalte
+            result = SortierSpalte switch
+            {
+                nameof(Artikel.ArtikelId) => (Aufsteigend ? result.OrderBy(a => a.ArtikelId) : result.OrderByDescending(a => a.ArtikelId)),
+                nameof(Artikel.Artikelname) => (Aufsteigend ? result.OrderBy(a => a.Artikelname) : result.OrderByDescending(a => a.Artikelname)),
+                nameof(Artikel.Menge) => (Aufsteigend ? result.OrderBy(a => a.Menge) : result.OrderByDescending(a => a.Menge)),
+                nameof(Artikel.PreisProEinheit) => (Aufsteigend ? result.OrderBy(a => a.PreisProEinheit) : result.OrderByDescending(a => a.PreisProEinheit)),
+                _ => result.OrderBy(a => a.ArtikelId) // Standard
+            };
+
+            return result;
+        }
+    }
+
+    private void SortiereNach(string spalte)
+    {
+        if (SortierSpalte == spalte)
+        {
+            Aufsteigend = !Aufsteigend; // Richtungswechsel
+        }
+        else
+        {
+            SortierSpalte = spalte;
+            Aufsteigend = true;
+        }
+    }
+
+    private void Hinzufuegen()
+    {
+        Navigation.NavigateTo("/artikel-hinzufügen");
+    }
+    private void Bearbeiten(int artikelId)
+    {
+        Navigation.NavigateTo($"/artikel-bearbeiten/{artikelId}");
+    }
+
+    private void Löschen(int artikelId)
+    {
+        Navigation.NavigateTo($"/artikel-löschen/{artikelId}");
+    }
 }

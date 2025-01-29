@@ -24,12 +24,15 @@
 
     <div>
         <label>Menge:</label>
-        <InputNumber @bind-Value="NeuerArtikel.Menge" />
+        <InputNumber @bind-Value="NeuerArtikel.Menge" min="0" step="1" />
+        <ValidationMessage For="@(() => NeuerArtikel.Menge)" />
+
     </div>
 
     <div>
         <label>Preis pro Einheit:</label>
-        <InputNumber @bind-Value="NeuerArtikel.PreisProEinheit" />
+        <InputNumber @bind-Value="NeuerArtikel.PreisProEinheit" min="0.01" step="0.01" />
+        <ValidationMessage For="@(() => NeuerArtikel.PreisProEinheit)" />
     </div>
 
     <div>
