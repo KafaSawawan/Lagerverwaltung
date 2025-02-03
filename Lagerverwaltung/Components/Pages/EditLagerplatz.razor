@@ -1,0 +1,44 @@
+﻿@page "/lagerplatz-bearbeiten/{id:int}"
+@using Lagerverwaltung.Data
+@using Lagerverwaltung.Models
+@inject LagerDbContext DbContext
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+
+<h3>Lagerplatz bearbeiten</h3>
+
+<EditForm Model="Lagerplatz" OnValidSubmit="Speichern">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div>
+        <label>Name:</label>
+        <InputText @bind-Value="Lagerplatz.Name" />
+    </div>
+    <div>
+        <label>Standort:</label>
+        <InputText @bind-Value="Lagerplatz.Standort" />
+    </div>
+    <button type="submit">Speichern</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Lagerplatz Lagerplatz = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Lagerplatz = await DbContext.Lagerplatz.FindAsync(Id);
+        if (Lagerplatz == null)
+        {
+            Navigation.NavigateTo("/lagerplätze");
+        }
+    }
+
+    private async Task Speichern()
+    {
+        await DbContext.SaveChangesAsync();
+        Navigation.NavigateTo("/lagerplätze");
+    }
+}

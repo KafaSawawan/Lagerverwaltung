@@ -7,28 +7,74 @@
 @rendermode InteractiveServer
 
 <h1>Artikelstatistik</h1>
+
+<!-- Dropdown-Menü für die Lagerplatz-Filterung -->
+<div>
+    <label for="lagerplatzFilter">Lagerplatz auswählen:</label>
+    <select id="lagerplatzFilter" @bind="AusgewählterLagerplatzId" bind:event="onchange">
+        <option value="">Alle Lagerplätze</option>
+        @foreach (var lagerplatz in Lagerplätze)
+        {
+                <option value="@lagerplatz.LagerplatzId">@lagerplatz.Name</option>
+        }
+    </select>
+</div>
+
 <div style="width: 500px; height: 500px; margin: auto;">
     <canvas id="artikelChart"></canvas>
 </div>
 
 @code {
+    private List<Lagerplatz> Lagerplätze = new();
     private List<string> artikelNamen = new();
     private List<int> artikelMengen = new();
+    private int? _ausgewählterLagerplatzId;
+    private bool _isFirstRender = true;
+
+    private int? AusgewählterLagerplatzId
+    {
+        get => _ausgewählterLagerplatzId;
+        set
+        {
+            _ausgewählterLagerplatzId = value;
+            _ = LadeArtikelDaten(); // Asynchrone Methode aufrufen
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Lagerplätze = await DbContext.Lagerplatz.ToListAsync();
+        await LadeArtikelDaten();
+    }
+
+    private async Task LadeArtikelDaten()
+    {
+        var query = DbContext.Artikel.AsQueryable();
+        if (AusgewählterLagerplatzId.HasValue)
+        {
+            query = query.Where(a => a.LagerplatzId == AusgewählterLagerplatzId.Value);
+        }
+
+        var topArtikel = await query
+            .OrderByDescending(a => a.Menge)
+            .Take(5)
+            .ToListAsync();
+
+        artikelNamen = topArtikel.Select(a => a.Artikelname).ToList();
+        artikelMengen = topArtikel.Select(a => a.Menge).ToList();
+
+        // Erst nach dem ersten vollständigen Rendern die JavaScript-Funktion aufrufen
+        if (!_isFirstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("createTopArticlesChart", artikelNamen, artikelMengen);
+        }
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            // Abrufen der 5 häufigsten Artikel (sortiert nach Menge)
-            var topArtikel = await DbContext.Artikel
-                .OrderByDescending(a => a.Menge)
-                .Take(5)
-                .ToListAsync();
-
-            artikelNamen = topArtikel.Select(a => a.Artikelname).ToList();
-            artikelMengen = topArtikel.Select(a => a.Menge).ToList();
-
-            // JavaScript aufrufen, um das Diagramm zu rendern
+            _isFirstRender = false;
             await JSRuntime.InvokeVoidAsync("createTopArticlesChart", artikelNamen, artikelMengen);
         }
     }

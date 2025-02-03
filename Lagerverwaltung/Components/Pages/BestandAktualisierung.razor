@@ -63,7 +63,7 @@
             SelectedArtikel.Menge = NeueMenge; // Aktualisiere mit der neuen Menge
             DbContext.Artikel.Update(SelectedArtikel);
             await DbContext.SaveChangesAsync();
-            Navigation.NavigateTo("/bestand-anzeigen");
+            Navigation.NavigateTo("/artikel");
         }
     }
 }

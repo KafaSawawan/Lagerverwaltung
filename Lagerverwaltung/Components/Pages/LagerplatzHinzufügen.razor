@@ -10,15 +10,20 @@
 <EditForm Model="NeuerLagerplatz" OnValidSubmit="Hinzufügen">
     <DataAnnotationsValidator />
     <ValidationSummary />
-    <div>
+
+    <div class="mb-3">
         <label>Name:</label>
-        <InputText @bind-Value="NeuerLagerplatz.Name" />
+        <InputText @bind-Value="NeuerLagerplatz.Name" class="form-control" />
     </div>
-    <div>
+
+    <div class="mb-3">
         <label>Standort:</label>
-        <InputText @bind-Value="NeuerLagerplatz.Standort" />
+        <InputText @bind-Value="NeuerLagerplatz.Standort" class="form-control" />
     </div>
-    <button type="submit">Hinzufügen</button>
+
+    <button type="submit" class="w-full bg-blue-800 text-blach font-bold py-2 rounded-lg hover:bg-blue-900 transition">
+        Lagerplatz hinzufügen
+    </button>
 </EditForm>
 
 @code {
@@ -28,8 +33,7 @@
     {
         DbContext.Lagerplatz.Add(NeuerLagerplatz);
         await DbContext.SaveChangesAsync();
-        NeuerLagerplatz = new Lagerplatz(); 
+        NeuerLagerplatz = new Lagerplatz();
         Navigation.NavigateTo("/lagerplätze");
-
     }
 }

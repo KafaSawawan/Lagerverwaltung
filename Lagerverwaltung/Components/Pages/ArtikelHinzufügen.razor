@@ -6,48 +6,53 @@
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
 
-<h3>Neuen Artikel hinzufügen</h3>
+<div class="max-w-lg mx-auto p-6 bg-white rounded-2xl shadow-md">
+    <h3 class="text-2xl font-semibold text-gray-800 mb-4">Neuen Artikel hinzufügen</h3>
 
-<EditForm Model="NeuerArtikel" OnValidSubmit="Hinzufügen">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+    <EditForm Model="NeuerArtikel" OnValidSubmit="Hinzufügen">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="text-red-500 mb-4" />
 
-    <div>
-        <label>Artikelname:</label>
-        <InputText @bind-Value="NeuerArtikel.Artikelname" />
-    </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 font-medium">Artikelname:</label>
+            <InputText @bind-Value="NeuerArtikel.Artikelname" class="w-full px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300" />
+        </div>
 
-    <div>
-        <label>Beschreibung:</label>
-        <InputText @bind-Value="NeuerArtikel.Beschreibung" />
-    </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 font-medium">Beschreibung:</label>
+            <InputText @bind-Value="NeuerArtikel.Beschreibung" class="w-full px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300" />
+        </div>
 
-    <div>
-        <label>Menge:</label>
-        <InputNumber @bind-Value="NeuerArtikel.Menge" min="0" step="1" />
-        <ValidationMessage For="@(() => NeuerArtikel.Menge)" />
+        <div class="mb-4">
+            <label class="block text-gray-700 font-medium">Menge:</label>
+            <InputNumber @bind-Value="NeuerArtikel.Menge" min="0" step="1"
+                         class="w-full px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300" />
+            <ValidationMessage For="@(() => NeuerArtikel.Menge)" class="text-red-500 text-sm" />
+        </div>
 
-    </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 font-medium">Preis pro Einheit:</label>
+            <InputNumber @bind-Value="NeuerArtikel.PreisProEinheit" min="0.01" step="0.01"
+                         class="w-full px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300" />
+            <ValidationMessage For="@(() => NeuerArtikel.PreisProEinheit)" class="text-red-500 text-sm" />
+        </div>
 
-    <div>
-        <label>Preis pro Einheit:</label>
-        <InputNumber @bind-Value="NeuerArtikel.PreisProEinheit" min="0.01" step="0.01" />
-        <ValidationMessage For="@(() => NeuerArtikel.PreisProEinheit)" />
-    </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 font-medium">Lagerplatz:</label>
+            <InputSelect @bind-Value="NeuerArtikel.LagerplatzId" class="w-full px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300">
+                <option value="">Bitte wählen</option>
+                @foreach (var lagerplatz in Lagerplätze)
+                {
+                    <option value="@lagerplatz.LagerplatzId">@lagerplatz.Name</option>
+                }
+            </InputSelect>
+        </div>
 
-    <div>
-        <label>Lagerplatz:</label>
-        <InputSelect @bind-Value="NeuerArtikel.LagerplatzId">
-            <option value="">Bitte wählen</option>
-            @foreach (var lagerplatz in Lagerplätze)
-            {
-                <option value="@lagerplatz.LagerplatzId">@lagerplatz.Name</option>
-            }
-        </InputSelect>
-    </div>
-
-    <button type="submit">Hinzufügen</button>
-</EditForm>
+        <button type="submit" class="w-full bg-blue-800 text-black font-bold py-2 rounded-lg hover:bg-blue-900 transition">
+            Artikel hinzufügen
+        </button>
+    </EditForm>
+</div>
 
 @code {
     private Artikel NeuerArtikel = new();
@@ -55,16 +60,14 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Lade alle Lagerplätze aus der Datenbank
         Lagerplätze = await DbContext.Lagerplatz.ToListAsync();
     }
 
     private async Task Hinzufügen()
     {
-        // Füge den neuen Artikel in die Datenbank ein
         DbContext.Artikel.Add(NeuerArtikel);
         await DbContext.SaveChangesAsync();
-        NeuerArtikel = new Artikel(); // Setze das Formular zurück
-        Navigation.NavigateTo("/artikel"); // Navigiere zur Artikelübersicht
+        NeuerArtikel = new Artikel();
+        Navigation.NavigateTo("/artikel");
     }
 }
