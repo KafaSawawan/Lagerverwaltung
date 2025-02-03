@@ -1,48 +1,86 @@
 # Lagerverwaltungsprogramm
 
-## Übersicht
-Ein einfaches Lagerverwaltungsprogramm, das es ermöglicht, Artikel zu verwalten, Bestände zu überwachen und Berichte zu generieren. Das Programm bietet eine Benutzeroberfläche zur Verwaltung von Artikeln, Lagerplätzen und Benutzerrechten.
+## Projektbeschreibung
+Das Lagerverwaltungsprogramm ermöglicht es, den Bestand von Artikeln in einem Lager zu verwalten. Es bietet grundlegende Funktionen zur Verwaltung von Artikeln, zur Bestandsaufnahme und zur Ausgabe von Berichten. Zusätzlich können Lagerplätze und Benutzer verwaltet werden.
 
-## Hauptfunktionen
+## Funktionen
 
-1. **Artikel hinzufügen**:
-   - Ermöglicht das Hinzufügen von Artikeln mit Artikelnummer, Name, Beschreibung, Menge und Preis.
-   
-2. **Artikel bearbeiten**:
-   - Änderung von Artikeldaten wie Name, Beschreibung, Menge und Preis.
+### 1. **Artikel hinzufügen**
+- **Funktion**: Der Benutzer kann neue Artikel zum Lagerbestand hinzufügen.
+- **Daten**:
+  - Artikelnummer (eindeutig)
+  - Artikelname
+  - Beschreibung
+  - Menge
+  - Preis pro Einheit
 
-3. **Artikel löschen**:
-   - Entfernen von Artikeln aus dem System.
+### 2. **Artikel bearbeiten**
+- **Funktion**: Der Benutzer kann bestehende Artikel bearbeiten.
+- **Änderungen**:
+  - Artikelname
+  - Beschreibung
+  - Menge
+  - Preis pro Einheit
 
-4. **Bestandsübersicht**:
-   - Anzeige aller Artikel mit Optionen zum Filtern und Sortieren.
-   - Markierung von Artikeln mit niedrigen Beständen (z.B. Menge ≤ 3).
-   
-5. **Bestand aktualisieren**:
-   - Erhöhung oder Verringerung der Artikelmenge bei Wareneingang oder -ausgang.
+### 3. **Artikel löschen**
+- **Funktion**: Der Benutzer kann einen Artikel aus dem System entfernen.
 
-6. **Statistik**:
-   - Erzeugung von Statistiken, z.B. die häufigsten Artikel im Lager.
+### 4. **Bestand anzeigen**
+- **Funktion**: Der Benutzer kann eine Übersicht aller Artikel im Lager anzeigen.
+  - **Filter**:
+    - Nach Artikelname oder Beschreibung suchen
+    - Nach Menge filtern (Artikel mit Menge ≤ 3 oder > 3)
+    - Nach Lagerplatz filtern
+  - **Sortierung**:
+    - Artikelnummer, Artikelname, Menge, Preis pro Einheit sortieren
+  - **Farbliche Markierung**:
+    - Artikel mit wenig Bestand (z. B. ≤ 3) werden rot markiert.
 
-7. **Lagerplatzverwaltung** (Zusatz):
-   - Verwaltung mehrerer Lagerplätze für Artikel.
+### 5. **Bestand aktualisieren**
+- **Funktion**: Der Benutzer kann die Menge eines Artikels erhöhen oder verringern (z. B. bei Wareneingang oder -ausgang).
 
-8. **Benutzerverwaltung** (Zusatz):
-   - Verwaltung von mehreren Benutzern mit unterschiedlichen Zugriffsrechten.
+### 6. **Statistik generieren**
+- **Funktion**: Der Benutzer kann eine Statistik erstellen (z. B. die fünf häufigsten Artikel im Lager) mit grafischer Darstellung.
 
-## Technische Details
+### 7. **Lagerplätze verwalten** (Zusatzfunktion)
+- **Funktion**: Der Benutzer kann mehrere Lagerplätze anlegen und verwalten.
+  - **Daten**: Name und Standort des Lagerplatzes.
 
-- **Programmiersprache**: C# mit ASP.NET Core und Blazor
-- **Datenbank**: SQL-basierte Datenbank (z.B. SQL Server, SQLite)
-- **Benutzeroberfläche**: Interaktive Weboberfläche mit Blazor (Razor Pages)
-- **Fehlerbehandlung**: Eingabefehler und andere Fehler werden durch Validierung und Fehlernachrichten behandelt.
+### 8. **Benutzer verwalten** (Zusatzfunktion)
+- **Funktion**: Das System unterstützt mehrere Benutzer mit unterschiedlichen Rechten.
+  - **Benutzerdaten**:
+    - Name
+    - Rolle (z. B. Admin, Mitarbeiter)
+    - Passwort
 
-## Erweiterungen (Optional)
+## Technische Anforderungen
+- **Programmiersprache**: C# mit Blazor (für Frontend) und Entity Framework Core (für Datenbankzugriff).
+- **Datenbank**: Microsoft SQL Server.
+- **Benutzeroberfläche**: Eine ansprechende und benutzerfreundliche grafische Oberfläche.
+- **Fehlerbehandlung**: Das Programm implementiert grundlegende Fehlerbehandlungen wie Eingabefehler.
 
-- **Mehrere Lagerplätze**: Ermöglicht die Verwaltung von Artikeln an unterschiedlichen Lagerorten.
-- **Benutzerrechte**: Einrichtbar für verschiedene Benutzerrollen (Admin, Standardbenutzer).
+## Datenbankmodell
 
+Die Datenbank besteht aus folgenden Tabellen:
 
+1. **Artikel**:
+   - `ArtikelId` (Primärschlüssel)
+   - `Artikelname`
+   - `Beschreibung`
+   - `Menge`
+   - `PreisProEinheit`
+   - `LagerplatzId` (Fremdschlüssel zu Lagerplatz)
+
+2. **Lagerplatz**:
+   - `LagerplatzId` (Primärschlüssel)
+   - `Name`
+   - `Standort`
+
+3. **Benutzer**:
+   - `BenutzerId` (Primärschlüssel)
+   - `Name`
+   - `Rolle`
+   - `Passwort`
 
 <img src="img/dbdiagram.png" width="500px" />
 Table Lagerplatz {
